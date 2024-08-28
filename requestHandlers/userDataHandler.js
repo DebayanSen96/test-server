@@ -2,7 +2,6 @@
 const User = require("../schemas/userSchema"); // Assuming the User model is in the 'schemas' file
 const mongoose = require("mongoose");
 
-
 const getUser = async (req, res) => {
   const { id } = req.params;
 
@@ -33,14 +32,13 @@ const insertUser = async (req, res) => {
     req.body;
 
   try {
-    const existingUser = await User.findOne({ id });
+    const existingUser = await User.find({ email: email });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User ID already exists" });
+      return res.status(400).json({ message: "User already exists" });
     }
 
     const newUser = await User.create({
-      id,
       name,
       email,
       phone_number,
