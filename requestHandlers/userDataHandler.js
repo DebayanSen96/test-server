@@ -28,14 +28,16 @@ const getUsers = async (req, res) => {
 };
 
 const insertUser = async (req, res) => {
-  const { id, name, email, phone_number, city, payment_info, booking_history } =
+  const { name, email, phone_number, city, payment_info, booking_history } =
     req.body;
 
   try {
-    const existingUser = await User.find({ email: email });
+    const existingUser = await User.findOne({ email });
 
     if (existingUser) {
-      return res.status(400).json({ message: "User already exists" });
+      return res
+        .status(400)
+        .json({ message: "User already exists", existingUser });
     }
 
     const newUser = await User.create({

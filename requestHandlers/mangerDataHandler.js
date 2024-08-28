@@ -2,8 +2,6 @@
 const Manager = require("../schemas/managerSchema"); // Assuming the Manager model is in the 'schemas' file
 const mongoose = require("mongoose");
 
-
-
 const getManager = async (req, res) => {
   const { id } = req.params;
 
@@ -31,7 +29,6 @@ const getManagers = async (req, res) => {
 
 const insertManager = async (req, res) => {
   const {
-    id,
     name,
     email,
     phone_number,
@@ -42,14 +39,13 @@ const insertManager = async (req, res) => {
   } = req.body;
 
   try {
-    const existingManager = await Manager.findOne({ id });
+    const existingManager = await Manager.findOne({ email });
 
     if (existingManager) {
       return res.status(400).json({ message: "Manager ID already exists" });
     }
 
     const newManager = await Manager.create({
-      id,
       name,
       email,
       phone_number,
