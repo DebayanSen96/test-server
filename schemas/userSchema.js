@@ -15,17 +15,12 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  city: {
+ 
+  password: {
     type: String,
     required: true,
   },
-  payment_info: {
-    card_number: { type: String, required: true },
-    expiry_date: { type: String, required: true },
-    cvv: { type: Number, required: true },
-  },
-  booking_history: [{ type: String }]
-});
+}, { versionKey: false });
 
 
 

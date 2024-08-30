@@ -28,34 +28,73 @@ const getUsers = async (req, res) => {
 };
 
 const insertUser = async (req, res) => {
-  const { name, email, phone_number, city, payment_info, booking_history } =
-    req.body;
+  const data = req.body;
 
   try {
-    const existingUser = await User.findOne({ email });
+    // Check if the request body is an array
+    if (Array.isArray(data)) {
+      // Iterate over each user in the array
+      const userPromises = data.map(async (user) => {
+        const { name, email, phone_number, password } = user;
+        const existingUser = await User.findOne({ email });
 
-    if (existingUser) {
-      return res
-        .status(400)
-        .json({ message: "User already exists", existingUser });
+        if (existingUser) {
+          return { error: `User with email ${email} already exists` };
+        } else {
+          const newUser = await User.create({
+            name,
+            email,
+            phone_number,
+            password
+          });
+          return newUser;
+        }
+      });
+
+      const results = await Promise.all(userPromises);
+
+      // Check for errors in the results
+      const errors = results.filter(result => result.error);
+      const successfulInserts = results.filter(result => !result.error);
+
+      if (errors.length > 0) {
+        return res.status(400).json({
+          message: "Some users could not be created",
+          errors,
+          createdUsers: successfulInserts
+        });
+      } else {
+        return res.status(201).json({
+          message: "All users created successfully",
+          users: successfulInserts
+        });
+      }
+    } else {
+      // If the request body is not an array, treat it as a single user object
+      const { name, email, phone_number, password } = data;
+      const existingUser = await User.findOne({ email });
+
+      if (existingUser) {
+        return res.status(400).json({ message: "User already exists", existingUser });
+      } else {
+        const newUser = await User.create({
+          name,
+          email,
+          phone_number,
+          password
+        });
+
+        return res.status(201).json({
+          message: "User created successfully",
+          user: newUser
+        });
+      }
     }
-
-    const newUser = await User.create({
-      name,
-      email,
-      phone_number,
-      city,
-      payment_info,
-      booking_history,
-    });
-
-    res
-      .status(201)
-      .json({ message: "User created successfully", user: newUser });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    return res.status(500).json({ error: error.message });
   }
 };
+
 
 const deleteUser = async (req, res) => {
   const { id } = req.params;
