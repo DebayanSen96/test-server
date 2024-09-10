@@ -133,10 +133,22 @@ const updateUser = async (req, res) => {
   res.status(200).json(user);
 };
 
+const userLoginHandler = async (req, res) => {
+  const { email, password } = req.body;
+
+  const user = await User.findOne({ email: email, password: password});
+  if (user) {
+    res.status(200).json({ isValid: true, userID: user._id });
+  } else {
+    res.status(200).json({ isValid: false, userID: null });
+  }
+};
+
 module.exports = {
   getUser,
   getUsers,
   insertUser,
   deleteUser,
   updateUser,
+  userLoginHandler
 };
